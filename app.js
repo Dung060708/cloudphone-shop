@@ -58,8 +58,12 @@ function renderProducts(filter) {
   filter = filter || currentFilter;
   const grid = $('products-grid');
   const list = filter === 'all' ? products : products.filter(p => p.category === filter);
-  grid.innerHTML = list.map(p => `
+  grid.innerHTML = list.map(p => {
+    const badge = p.id<=2?'<span class="product-badge badge-hot">🔥 Hot</span>':p.id===8||p.id===9?'<span class="product-badge badge-sale">Sale</span>':p.id===10?'<span class="product-badge badge-new">New</span>':'';
+    const isFav = favorites.includes(p.id);
+    return `
     <div class="product-card" data-id="${p.id}">
+      ${badge}
       <h6 class="product-name"><a href="#" onclick="openDetail(${p.id});return false">${p.name}</a></h6>
       <div class="product-labels">
         <span class="label-stock">Kho: <b>${p.stock}</b></span>
@@ -68,12 +72,13 @@ function renderProducts(filter) {
       <div class="product-price">${fmt(p.price)}</div>
       <p class="product-desc"><i class="fa-solid fa-angles-right"></i> ${p.desc}</p>
       <div class="product-actions">
+        <button class="btn-fav ${isFav?'active':''}" onclick="toggleFav(${p.id})" title="Yêu thích"><i class="fa-solid fa-heart"></i></button>
         <a class="btn-detail" href="#" onclick="openDetail(${p.id});return false">Chi tiết</a>
         <button class="btn-buy" onclick="addToCart(${p.id})"><i class="fa-solid fa-cart-plus"></i> Thêm giỏ</button>
         <button class="btn-buy" style="background:var(--green);" onclick="openBuyModal(${p.id})">Mua Ngay</button>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 function renderRecent() {
@@ -457,4 +462,100 @@ const _origLogin=handleLogin,_origRegister=handleRegister,_origLogout=logout,_or
 handleLogin=function(e){e.preventDefault();const email=$('login-email').value,pw=$('login-password').value;if(!email||!pw){showToast('Nhập đầy đủ!','error');return;}currentUser={username:email.split('@')[0],email,balance:500000};closeAuthModal();updateAuthUI();saveState();showToast(`🎉 Chào ${currentUser.username}!`,'success');};
 handleRegister=function(e){e.preventDefault();const u=$('reg-username').value,em=$('reg-email').value,pw=$('reg-password').value,pw2=$('reg-password-confirm').value;if(!u||!em||!pw){showToast('Nhập đầy đủ!','error');return;}if(pw!==pw2){showToast('Mật khẩu không khớp!','error');return;}currentUser={username:u,email:em,balance:0};closeAuthModal();updateAuthUI();saveState();showToast(`✅ Đăng ký thành công!`,'success');};
 logout=function(){currentUser=null;orderHistory=[];updateAuthUI();saveState();showToast('Đã đăng xuất!','info');};
-confirmDeposit=function(){const custom=+($('custom-amount')?.value||0);const amount=custom>0?custom:selectedDepositAmount;if(!currentUser){showToast('Đăng nhập trước!','error');closeDepositModal();openAuthModal('login');return;}currentUser.balance+=amount;showToast(`✅ Nạp ${fmt(amount)} thành công!`,'success');closeDepositModal();updateAuthUI();saveState();};
+confirmDeposit=function(){const custom=+($('custom-amount')?.value||0);const amount=custom>0?custom:selectedDepositAmount;if(!currentUser){showToast('Đăng nhập trước!','error');closeDepositModal();openAuthModal('login');return;}currentUser.balance+=amount;addTransaction('+'+fmt(amount),'Nạp tiền','success');addActivityLog('Nạp '+fmt(amount)+' vào tài khoản');showToast(`✅ Nạp ${fmt(amount)} thành công!`,'success');closeDepositModal();updateAuthUI();saveState();};
+
+// ===== FAVORITES =====
+let favorites=[];
+function loadFavorites(){try{const f=localStorage.getItem('cp_favs');if(f)favorites=JSON.parse(f);}catch(e){}}
+function saveFavorites(){localStorage.setItem('cp_favs',JSON.stringify(favorites));}
+function toggleFav(id){
+  const i=favorites.indexOf(id);
+  if(i>=0)favorites.splice(i,1);else favorites.push(id);
+  saveFavorites();renderProducts();updateFavCount();
+  showToast(i>=0?'Đã bỏ yêu thích':'❤️ Đã thêm vào yêu thích',i>=0?'info':'success');
+}
+function updateFavCount(){const el=$('fav-count');if(el){el.textContent=favorites.length;el.style.display=favorites.length>0?'flex':'none';}}
+function renderFavorites(){
+  const el=document.getElementById('favorites-content');if(!el)return;
+  const favProducts=products.filter(p=>favorites.includes(p.id));
+  if(favProducts.length===0){el.innerHTML='<div class="empty-state"><i class="fa-solid fa-heart-crack"></i><p>Chưa có sản phẩm yêu thích</p><small>Nhấn ❤️ trên sản phẩm để thêm</small></div>';return;}
+  el.innerHTML='<div class="products-grid">'+favProducts.map(p=>'<div class="product-card"><h6 class="product-name"><a href="#" onclick="openDetail('+p.id+');return false">'+p.name+'</a></h6><div class="product-labels"><span class="label-stock">Kho: <b>'+p.stock+'</b></span><span class="label-sold">Đã bán: <b>'+p.sold.toLocaleString()+'</b></span></div><div class="product-price">'+fmt(p.price)+'</div><div class="product-actions"><button class="btn-fav active" onclick="toggleFav('+p.id+')"><i class="fa-solid fa-heart"></i></button><button class="btn-buy" style="flex:1;" onclick="openBuyModal('+p.id+')">Mua Ngay</button></div></div>').join('')+'</div>';
+}
+
+// ===== TRANSACTIONS =====
+let transactions=[];
+function loadTransactions(){try{const t=localStorage.getItem('cp_tx');if(t)transactions=JSON.parse(t);}catch(e){}}
+function saveTransactions(){localStorage.setItem('cp_tx',JSON.stringify(transactions));}
+function addTransaction(amount,desc,type){
+  transactions.unshift({amount,desc,type,date:new Date().toLocaleString('vi-VN')});
+  if(transactions.length>100)transactions.pop();saveTransactions();
+}
+function renderTransactions(){
+  const el=document.getElementById('transactions-content');if(!el)return;
+  if(!currentUser){el.innerHTML='<div class="empty-state"><i class="fa-solid fa-lock"></i><p>Đăng nhập để xem</p></div>';return;}
+  if(transactions.length===0){el.innerHTML='<div class="empty-state"><i class="fa-solid fa-wallet"></i><p>Chưa có giao dịch</p></div>';return;}
+  el.innerHTML='<table class="orders-table"><thead><tr><th>Thời gian</th><th>Mô tả</th><th>Số tiền</th><th>Loại</th></tr></thead><tbody>'+transactions.map(t=>'<tr><td style="color:var(--text-muted);font-size:12px;">'+t.date+'</td><td>'+t.desc+'</td><td class="'+(t.type==='success'?'tx-positive':'tx-negative')+'">'+t.amount+'</td><td><span class="status-badge status-'+t.type+'">'+(t.type==='success'?'✅ Cộng':'🔻 Trừ')+'</span></td></tr>').join('')+'</tbody></table>';
+}
+
+// ===== ACTIVITY LOG =====
+let activityLog=[];
+function loadActivityLog(){try{const a=localStorage.getItem('cp_activity');if(a)activityLog=JSON.parse(a);}catch(e){}}
+function saveActivityLog(){localStorage.setItem('cp_activity',JSON.stringify(activityLog));}
+function addActivityLog(action){
+  activityLog.unshift({action,date:new Date().toLocaleString('vi-VN')});
+  if(activityLog.length>100)activityLog.pop();saveActivityLog();
+}
+function renderActivity(){
+  const el=document.getElementById('activity-content');if(!el)return;
+  if(!currentUser){el.innerHTML='<div class="empty-state"><i class="fa-solid fa-lock"></i><p>Đăng nhập để xem</p></div>';return;}
+  if(activityLog.length===0){el.innerHTML='<div class="empty-state"><i class="fa-solid fa-list-check"></i><p>Chưa có hoạt động</p></div>';return;}
+  el.innerHTML='<table class="orders-table"><thead><tr><th>Thời gian</th><th>Hoạt động</th></tr></thead><tbody>'+activityLog.map(a=>'<tr><td style="color:var(--text-muted);font-size:12px;">'+a.date+'</td><td>'+a.action+'</td></tr>').join('')+'</tbody></table>';
+}
+
+// ===== WELCOME POPUP =====
+function showWelcomePopup(){
+  if(localStorage.getItem('cp_no_welcome')==='1')return;
+  setTimeout(()=>$('welcome-modal')?.classList.add('active'),800);
+}
+function closeWelcomeModal(){
+  $('welcome-modal')?.classList.remove('active');
+  if($('no-show-welcome')?.checked)localStorage.setItem('cp_no_welcome','1');
+}
+
+// ===== FAQ =====
+const faqData=[
+  {q:'CloudPhone là gì?',a:'CloudPhone là điện thoại ảo chạy trên cloud, bạn có thể sử dụng Android, iOS, Windows mà không cần thiết bị vật lý. Online 24/7, truy cập từ bất kỳ đâu.'},
+  {q:'Làm sao để mua sản phẩm?',a:'Đăng ký tài khoản → Nạp tiền → Chọn sản phẩm → Mua ngay. Hệ thống sẽ tự động cung cấp thông tin truy cập.'},
+  {q:'Có được bảo hành không?',a:'Tất cả sản phẩm được bảo hành 7 ngày. Đổi trả 1-1 trong 24h nếu lỗi từ hệ thống.'},
+  {q:'Thanh toán bằng cách nào?',a:'Hỗ trợ: Ngân hàng (tự động 24/7), MoMo, Thẻ cào, Crypto (Binance/USDT). Tỷ giá: 1$ = 26.000 VNĐ.'},
+  {q:'Có API để quản lý không?',a:'Có! Chúng tôi cung cấp API RESTful để quản lý CloudPhone từ xa. Xem tài liệu tại mục Tài liệu API.'},
+  {q:'Liên hệ hỗ trợ ở đâu?',a:'Discord: discord.gg/cloudphone | Telegram: t.me/cloudphone | Zalo: 0123.456.789. Hỗ trợ 24/7.'}
+];
+function renderFAQ(){
+  const el=$('faq-body');if(!el)return;
+  el.innerHTML=faqData.map((f,i)=>'<div class="faq-item" onclick="this.classList.toggle(\'open\')"><div class="faq-q"><span>'+f.q+'</span><i class="fa-solid fa-chevron-down"></i></div><div class="faq-a">'+f.a+'</div></div>').join('');
+}
+
+// ===== PATCH switchPage for new pages =====
+const _origSwitchPage=switchPage;
+switchPage=function(page){
+  if(page==='admin'&&!isAdmin){promptAdminLogin();return;}
+  document.querySelectorAll('.page-section').forEach(s=>s.classList.remove('active'));
+  const el=document.getElementById('page-'+page);if(el)el.classList.add('active');
+  document.querySelectorAll('.navbar-link').forEach(l=>{l.classList.remove('active');if(l.dataset.page===page)l.classList.add('active');});
+  const hero=document.getElementById('hero-banner');
+  if(hero)hero.style.display=page==='home'?'block':'none';
+  if(page==='orders')renderOrderHistory();
+  if(page==='admin')renderAdmin();
+  if(page==='favorites')renderFavorites();
+  if(page==='transactions')renderTransactions();
+  if(page==='activity')renderActivity();
+  window.scrollTo({top:0,behavior:'smooth'});
+};
+
+// ===== PATCH INIT to load new data =====
+const _origDOMReady=true;
+loadFavorites();loadTransactions();loadActivityLog();updateFavCount();renderFAQ();showWelcomePopup();
+
+// ===== Close new modals on overlay click =====
+document.addEventListener('click',e=>{if(e.target.id==='welcome-modal')closeWelcomeModal();if(e.target.id==='policy-modal')e.target.classList.remove('active');if(e.target.id==='faq-modal')e.target.classList.remove('active');});

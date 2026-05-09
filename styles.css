@@ -809,3 +809,40 @@ body::after {
 /* ===== Responsive additions ===== */
 @media(max-width:1024px){.admin-stats{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:768px){.hero-title{font-size:28px}.hero-stats{gap:24px}.hero-stat-num{font-size:24px}.hero-actions{flex-direction:column;align-items:center}.admin-stats{grid-template-columns:1fr}.admin-tabs{flex-wrap:wrap}}
+
+/* ===== Payment Icons ===== */
+.pay-icon{padding:4px 10px;border-radius:6px;background:rgba(255,255,255,0.06);border:1px solid var(--border);font-size:11px;font-weight:600;color:var(--text-muted)}
+
+/* ===== Product Badges ===== */
+.product-badge{position:absolute;top:12px;right:12px;padding:4px 10px;border-radius:6px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;z-index:1}
+.badge-hot{background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;animation:badgePulse 2s infinite}
+.badge-sale{background:linear-gradient(135deg,#8B5CF6,#EC4899);color:#fff}
+.badge-new{background:linear-gradient(135deg,#22c55e,#06b6d4);color:#fff}
+@keyframes badgePulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.4)}50%{box-shadow:0 0 0 6px rgba(239,68,68,0)}}
+.product-card{position:relative}
+
+/* ===== Favorite Button ===== */
+.btn-fav{background:none;border:1px solid var(--border);color:var(--text-muted);width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:14px;transition:all .3s;flex-shrink:0}
+.btn-fav:hover,.btn-fav.active{border-color:#ef4444;color:#ef4444;background:rgba(239,68,68,0.08)}
+.btn-fav.active{animation:heartBeat .4s ease}
+@keyframes heartBeat{0%{transform:scale(1)}25%{transform:scale(1.3)}50%{transform:scale(0.95)}100%{transform:scale(1)}}
+
+/* ===== FAQ Accordion ===== */
+.faq-item{border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;transition:border-color .3s}
+.faq-item:hover{border-color:rgba(59,130,246,0.3)}
+.faq-q{padding:14px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:14px;background:rgba(30,30,30,0.6);transition:background .3s}
+.faq-q:hover{background:rgba(59,130,246,0.05)}
+.faq-q i{transition:transform .3s;color:var(--primary)}
+.faq-a{padding:0 18px;max-height:0;overflow:hidden;transition:all .3s ease;font-size:13px;color:var(--text-muted);line-height:1.7}
+.faq-item.open .faq-a{padding:12px 18px;max-height:200px}
+.faq-item.open .faq-q i{transform:rotate(180deg)}
+
+/* ===== Live Feed Animation ===== */
+.scroll-list.auto-scroll{position:relative;overflow:hidden}
+.scroll-list.auto-scroll .scroll-inner{animation:scrollFeed 20s linear infinite}
+@keyframes scrollFeed{0%{transform:translateY(0)}100%{transform:translateY(-50%)}}
+.scroll-list.auto-scroll:hover .scroll-inner{animation-play-state:paused}
+
+/* ===== Transaction table ===== */
+.tx-positive{color:var(--green);font-weight:700}
+.tx-negative{color:var(--red);font-weight:700}

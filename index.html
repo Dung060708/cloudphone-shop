@@ -26,8 +26,8 @@
   <div class="container">
     <span><i class="fa-solid fa-bolt" style="color:var(--yellow);"></i> Chào mừng đến CloudPhone Shop — #1 Cloud Device Provider</span>
     <ul class="header-top-links">
-      <li><a href="#"><i class="fa-solid fa-shield-halved"></i> Chính sách</a></li>
-      <li><a href="#"><i class="fa-solid fa-circle-question"></i> FAQ</a></li>
+      <li><a href="#" onclick="document.getElementById('policy-modal').classList.add('active');return false"><i class="fa-solid fa-shield-halved"></i> Chính sách</a></li>
+      <li><a href="#" onclick="document.getElementById('faq-modal').classList.add('active');return false"><i class="fa-solid fa-circle-question"></i> FAQ</a></li>
       <li><a href="#"><i class="fa-solid fa-headset"></i> Liên hệ</a></li>
     </ul>
   </div>
@@ -46,11 +46,14 @@
         <button type="submit"><i class="fas fa-search"></i></button>
       </form>
       <div class="header-widgets">
+        <a class="header-widget" href="#" title="Yêu thích" onclick="switchPage('favorites');return false">
+          <i class="fa-solid fa-heart"></i>
+          <sup id="fav-count" style="display:none;">0</sup>
+        </a>
         <a class="header-widget" href="#" title="Giỏ hàng" onclick="toggleCart();return false">
           <i class="fa-solid fa-cart-shopping"></i>
           <sup id="cart-count" style="display:none;">0</sup>
         </a>
-        <a class="header-widget" href="#" title="Đơn hàng" onclick="switchPage('orders');return false"><i class="fa-solid fa-receipt"></i></a>
         <a class="header-widget" href="#" title="Nạp tiền" onclick="openDepositModal();return false"><i class="fa-solid fa-building-columns"></i></a>
         <div id="auth-area">
           <a class="btn-login" href="#" onclick="openAuthModal('login');return false"><i class="fa-solid fa-right-to-bracket"></i> Đăng nhập</a>
@@ -82,7 +85,14 @@
           <a href="#" onclick="openDepositModal();return false"><i class="fa-solid fa-credit-card"></i> Thẻ cào</a>
         </div>
       </li>
-      <li class="navbar-item"><a class="navbar-link" href="#" data-page="orders" onclick="switchPage('orders');return false">Đơn hàng</a></li>
+      <li class="navbar-item">
+        <a class="navbar-link" href="#">Lịch sử <i class="fa-solid fa-chevron-down" style="font-size:10px;"></i></a>
+        <div class="dropdown-menu-custom">
+          <a href="#" onclick="switchPage('orders');return false"><i class="fa-solid fa-receipt"></i> Lịch sử đơn hàng</a>
+          <a href="#" onclick="switchPage('transactions');return false"><i class="fa-solid fa-money-bill-transfer"></i> Biến động số dư</a>
+          <a href="#" onclick="switchPage('activity');return false"><i class="fa-solid fa-clock-rotate-left"></i> Nhật ký hoạt động</a>
+        </div>
+      </li>
       <li class="navbar-item"><a class="navbar-link" href="#" data-page="admin" onclick="switchPage('admin');return false"><i class="fa-solid fa-gear"></i> Admin</a></li>
     </ul>
   </div>
@@ -328,6 +338,74 @@
   </div>
 </aside>
 
+<!-- ========== MODAL: WELCOME POPUP ========== -->
+<div class="modal-overlay" id="welcome-modal">
+  <div class="modal-box" style="max-width:520px;">
+    <div class="modal-header"><h3><i class="fa-solid fa-bullhorn" style="color:var(--yellow);"></i> Thông báo</h3><button class="modal-close" onclick="closeWelcomeModal()"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="modal-body" style="line-height:1.8;font-size:14px;">
+      <p>🎉 Chào mừng bạn đến với <strong style="color:var(--primary);">CloudPhone Shop</strong>!</p>
+      <p>✅ Bảo hành <strong>7 ngày</strong> cho tất cả sản phẩm</p>
+      <p>✅ Hỗ trợ 24/7 qua <strong style="color:#5865F2;">Discord</strong> & <strong style="color:#26A5E4;">Telegram</strong></p>
+      <p>✅ Thanh toán: Ngân hàng, MoMo, Thẻ cào, Crypto</p>
+      <p style="color:var(--yellow);margin-top:12px;">⚡ <strong>Khuyến mãi:</strong> Giảm 20% gói 5 Android | Giảm 25% gói 10 Pro</p>
+      <div style="margin-top:16px;padding:12px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:8px;font-size:13px;"><i class="fa-brands fa-discord" style="color:#5865F2;"></i> <strong>discord.gg/cloudphone</strong> &nbsp;|&nbsp; <i class="fa-brands fa-telegram" style="color:#26A5E4;"></i> <strong>t.me/cloudphone</strong></div>
+      <label class="checkbox-label" style="margin-top:12px;"><input type="checkbox" id="no-show-welcome"> Không hiển thị lại</label>
+      <button class="btn-confirm" style="margin-top:16px;" onclick="closeWelcomeModal()"><i class="fa-solid fa-check"></i> Đã hiểu</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== MODAL: POLICY ========== -->
+<div class="modal-overlay" id="policy-modal">
+  <div class="modal-box" style="max-width:640px;">
+    <div class="modal-header"><h3><i class="fa-solid fa-shield-halved" style="color:var(--primary);"></i> Chính sách bảo hành</h3><button class="modal-close" onclick="document.getElementById('policy-modal').classList.remove('active')"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="modal-body" style="line-height:1.9;font-size:14px;color:var(--text-muted);">
+      <h4 style="color:var(--text);margin-bottom:8px;">📋 Điều khoản bảo hành</h4>
+      <p>1. Tất cả sản phẩm được bảo hành <strong style="color:var(--green);">7 ngày</strong> kể từ ngày mua.</p>
+      <p>2. Khách hàng cần quay video từ lúc mua đến khi sử dụng để được hỗ trợ.</p>
+      <p>3. Đổi trả 1-1 trong vòng <strong style="color:var(--green);">24h</strong> nếu sản phẩm bị lỗi.</p>
+      <p>4. <strong style="color:var(--red);">Không</strong> bảo hành các trường hợp do khách hàng tự ý thay đổi thông tin.</p>
+      <h4 style="color:var(--text);margin:16px 0 8px;">💳 Chính sách thanh toán</h4>
+      <p>• Ngân hàng: Nạp tự động 24/7</p>
+      <p>• MoMo / Thẻ cào: Xử lý trong 1-5 phút</p>
+      <p>• Crypto (Binance): Liên hệ Discord để nạp</p>
+      <p>• Tỷ giá: 1$ = 26.000 VNĐ</p>
+    </div>
+  </div>
+</div>
+
+<!-- ========== MODAL: FAQ ========== -->
+<div class="modal-overlay" id="faq-modal">
+  <div class="modal-box" style="max-width:640px;">
+    <div class="modal-header"><h3><i class="fa-solid fa-circle-question" style="color:var(--yellow);"></i> Câu hỏi thường gặp</h3><button class="modal-close" onclick="document.getElementById('faq-modal').classList.remove('active')"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="modal-body" id="faq-body" style="line-height:1.8;font-size:14px;"></div>
+  </div>
+</div>
+
+<!-- ========== PAGE: FAVORITES ========== -->
+<section id="page-favorites" class="page-section">
+  <div class="container">
+    <div class="page-header-bar"><h2><i class="fa-solid fa-heart"></i> Sản phẩm yêu thích</h2><p>Danh sách sản phẩm bạn đã lưu</p></div>
+    <div id="favorites-content"><div class="empty-state"><i class="fa-solid fa-heart-crack"></i><p>Chưa có sản phẩm yêu thích</p></div></div>
+  </div>
+</section>
+
+<!-- ========== PAGE: TRANSACTIONS ========== -->
+<section id="page-transactions" class="page-section">
+  <div class="container">
+    <div class="page-header-bar"><h2><i class="fa-solid fa-money-bill-transfer"></i> Biến động số dư</h2><p>Lịch sử nạp tiền và thanh toán</p></div>
+    <div id="transactions-content"><div class="empty-state"><i class="fa-solid fa-wallet"></i><p>Chưa có giao dịch</p></div></div>
+  </div>
+</section>
+
+<!-- ========== PAGE: ACTIVITY ========== -->
+<section id="page-activity" class="page-section">
+  <div class="container">
+    <div class="page-header-bar"><h2><i class="fa-solid fa-clock-rotate-left"></i> Nhật ký hoạt động</h2><p>Theo dõi mọi hoạt động trên tài khoản</p></div>
+    <div id="activity-content"><div class="empty-state"><i class="fa-solid fa-list-check"></i><p>Chưa có hoạt động</p></div></div>
+  </div>
+</section>
+
 <!-- Footer -->
 <footer class="footer">
   <div class="container">
@@ -335,6 +413,7 @@
       <div>
         <a class="footer-logo" href="#">Cloud<span>Phone</span></a>
         <p style="color:var(--text-muted);font-size:14px;margin-top:12px;line-height:1.7;">Nền tảng cung cấp điện thoại ảo hàng đầu Việt Nam. Android, iOS, Windows — tất cả trên cloud.</p>
+        <div class="payment-icons" style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;"><span class="pay-icon">💳 VCB</span><span class="pay-icon">📱 MoMo</span><span class="pay-icon">💰 Thẻ cào</span><span class="pay-icon">₿ Binance</span><span class="pay-icon">💎 USDT</span></div>
       </div>
       <div>
         <h4 class="footer-title">Liên hệ</h4>
@@ -347,8 +426,8 @@
       <div>
         <h4 class="footer-title">Liên kết</h4>
         <ul class="footer-links">
-          <li><a href="#">Chính sách bảo hành</a></li>
-          <li><a href="#">Câu hỏi thường gặp</a></li>
+          <li><a href="#" onclick="document.getElementById('policy-modal').classList.add('active');return false">Chính sách bảo hành</a></li>
+          <li><a href="#" onclick="document.getElementById('faq-modal').classList.add('active');return false">Câu hỏi thường gặp</a></li>
           <li><a href="#">Tài liệu API</a></li>
           <li><a href="#">Điều khoản sử dụng</a></li>
         </ul>
