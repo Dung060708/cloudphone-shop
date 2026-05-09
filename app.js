@@ -310,18 +310,29 @@ document.addEventListener('click', e => {
   if(e.target.id==='deposit-modal') closeDepositModal();
 });
 
+// ===== ADMIN CREDENTIALS =====
+const ADMIN_USER='admin',ADMIN_PASS='admin123';
+let isAdmin=false;
+
+// ===== SHOP SETTINGS =====
+const defaultShopSettings={shopName:'CloudPhone Shop',shopDesc:'Cung cấp điện thoại ảo Android, iOS, Windows chất lượng cao.',email:'support@cloudphone.vn',phone:'0123.456.789',discord:'discord.gg/cloudphone',telegram:'t.me/cloudphone',zalo:'0123.456.789',bankName:'VIETCOMBANK',bankNumber:'1234 5678 9012',bankHolder:'CLOUDPHONE SHOP',webhook:''};
+let shopSettings={...defaultShopSettings};
+
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', () => {
-  loadState(); renderProducts(); renderRecent(); initParticles(); updateCartUI(); updateAuthUI(); animateHeroStats();
+  loadState(); loadShopSettings(); applyShopSettings(); renderProducts(); renderRecent(); initParticles(); updateCartUI(); updateAuthUI(); animateHeroStats();
 });
 
 // ===== LOCALSTORAGE =====
-function saveState(){localStorage.setItem('cp_user',JSON.stringify(currentUser));localStorage.setItem('cp_cart',JSON.stringify(cart));localStorage.setItem('cp_orders',JSON.stringify(orderHistory));}
+function saveState(){localStorage.setItem('cp_user',JSON.stringify(currentUser));localStorage.setItem('cp_cart',JSON.stringify(cart));localStorage.setItem('cp_orders',JSON.stringify(orderHistory));localStorage.setItem('cp_admin',isAdmin?'1':'0');}
 function loadState(){
   try{const u=localStorage.getItem('cp_user');if(u)currentUser=JSON.parse(u);
   const c=localStorage.getItem('cp_cart');if(c)cart=JSON.parse(c);
-  const o=localStorage.getItem('cp_orders');if(o)orderHistory=JSON.parse(o);}catch(e){}
+  const o=localStorage.getItem('cp_orders');if(o)orderHistory=JSON.parse(o);
+  isAdmin=localStorage.getItem('cp_admin')==='1';}catch(e){}
 }
+function loadShopSettings(){try{const s=localStorage.getItem('cp_shop');if(s)shopSettings={...defaultShopSettings,...JSON.parse(s)};}catch(e){}}
+function saveShopSettings(){localStorage.setItem('cp_shop',JSON.stringify(shopSettings));}
 let orderHistory=[];
 
 // ===== HERO STATS ANIMATION =====
@@ -337,6 +348,7 @@ function scrollToProducts(){document.getElementById('products-section')?.scrollI
 
 // ===== PAGE NAVIGATION =====
 function switchPage(page){
+  if(page==='admin'&&!isAdmin){promptAdminLogin();return;}
   document.querySelectorAll('.page-section').forEach(s=>s.classList.remove('active'));
   const el=document.getElementById('page-'+page);if(el)el.classList.add('active');
   document.querySelectorAll('.navbar-link').forEach(l=>{l.classList.remove('active');if(l.dataset.page===page)l.classList.add('active');});
@@ -345,6 +357,12 @@ function switchPage(page){
   if(page==='orders')renderOrderHistory();
   if(page==='admin')renderAdmin();
   window.scrollTo({top:0,behavior:'smooth'});
+}
+function promptAdminLogin(){
+  const u=prompt('🔐 Tên đăng nhập Admin:');if(!u)return;
+  const p=prompt('🔑 Mật khẩu Admin:');if(!p)return;
+  if(u===ADMIN_USER&&p===ADMIN_PASS){isAdmin=true;saveState();showToast('✅ Đăng nhập Admin thành công!','success');switchPage('admin');}
+  else showToast('❌ Sai tài khoản Admin!','error');
 }
 
 // ===== ORDER HISTORY =====
@@ -383,13 +401,34 @@ function switchAdminTab(tab,btn){
   }else if(tab==='users'){
     el.innerHTML='<div class="admin-card"><h4><i class="fa-solid fa-users" style="color:var(--primary);"></i> Danh sách người dùng</h4>'+(currentUser?'<table class="admin-table"><thead><tr><th>Username</th><th>Email</th><th>Số dư</th><th>Đơn hàng</th></tr></thead><tbody><tr><td style="font-weight:600;">'+currentUser.username+'</td><td style="color:var(--text-muted);">'+currentUser.email+'</td><td style="color:var(--green);font-weight:700;">'+fmt(currentUser.balance)+'</td><td>'+orderHistory.length+'</td></tr></tbody></table>':'<p style="color:var(--text-muted);">Chưa có user đăng nhập</p>')+'</div>';
   }else{
-    el.innerHTML='<div class="admin-card"><h4><i class="fa-solid fa-cog" style="color:var(--primary);"></i> Cài đặt hệ thống</h4><div style="display:grid;gap:16px;"><div class="field"><label style="display:block;font-size:13px;color:var(--text-muted);margin-bottom:6px;">Tên shop</label><input style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:rgba(40,40,40,0.9);color:var(--text);font-size:14px;" value="CloudPhone Shop"></div><div class="field"><label style="display:block;font-size:13px;color:var(--text-muted);margin-bottom:6px;">Discord webhook</label><input style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:rgba(40,40,40,0.9);color:var(--text);font-size:14px;" placeholder="https://discord.com/api/webhooks/..."></div><button class="btn-confirm" style="width:auto;padding:12px 32px;" onclick="showToast(\'Đã lưu cài đặt!\',\'success\')"><i class="fa-solid fa-save"></i> Lưu cài đặt</button></div></div>';
+    const s=shopSettings;const fi=(id,lb,val,ph)=>'<div class="field"><label style="display:block;font-size:13px;color:var(--text-muted);margin-bottom:6px;">'+lb+'</label><input id="set-'+id+'" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:rgba(40,40,40,0.9);color:var(--text);font-size:14px;outline:none;" value="'+(val||'')+'" placeholder="'+(ph||'')+'"></div>';
+    el.innerHTML='<div class="admin-card"><h4><i class="fa-solid fa-store" style="color:var(--primary);"></i> Thông tin Shop</h4><div style="display:grid;gap:12px;">'+fi('shopName','Tên shop',s.shopName,'')+fi('shopDesc','Mô tả shop',s.shopDesc,'')+'</div></div>'+
+    '<div class="admin-card"><h4><i class="fa-solid fa-address-book" style="color:var(--green);"></i> Liên hệ</h4><div style="display:grid;gap:12px;grid-template-columns:1fr 1fr;">'+fi('email','Email',s.email,'support@shop.vn')+fi('phone','Số điện thoại',s.phone,'0123.456.789')+fi('discord','Discord',s.discord,'discord.gg/...')+fi('telegram','Telegram',s.telegram,'t.me/...')+fi('zalo','Zalo',s.zalo,'0123.456.789')+'</div></div>'+
+    '<div class="admin-card"><h4><i class="fa-solid fa-building-columns" style="color:var(--yellow);"></i> Thông tin ngân hàng</h4><div style="display:grid;gap:12px;grid-template-columns:1fr 1fr 1fr;">'+fi('bankName','Tên ngân hàng',s.bankName,'VIETCOMBANK')+fi('bankNumber','Số tài khoản',s.bankNumber,'1234 5678 9012')+fi('bankHolder','Chủ tài khoản',s.bankHolder,'CLOUDPHONE SHOP')+'</div></div>'+
+    '<div class="admin-card"><h4><i class="fa-solid fa-robot" style="color:#8B5CF6;"></i> Tích hợp</h4><div style="display:grid;gap:12px;">'+fi('webhook','Discord Webhook URL',s.webhook,'https://discord.com/api/webhooks/...')+'</div></div>'+
+    '<button class="btn-confirm" style="width:auto;padding:14px 40px;" onclick="saveSettings()"><i class="fa-solid fa-save"></i> Lưu tất cả cài đặt</button> <button class="btn-confirm" style="width:auto;padding:14px 40px;background:var(--red);margin-left:12px;" onclick="adminLogout()"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất Admin</button>';
   }
 }
 function adminEditStock(id){
   const p=products.find(x=>x.id===id);if(!p)return;
   const val=prompt('Nhập số lượng kho mới cho "'+p.name+'":',p.stock);
   if(val!==null&&!isNaN(+val)){p.stock=+val;renderAdmin();renderProducts();showToast('✅ Đã cập nhật kho: '+p.name,'success');}
+}
+function saveSettings(){
+  ['shopName','shopDesc','email','phone','discord','telegram','zalo','bankName','bankNumber','bankHolder','webhook'].forEach(k=>{const el=document.getElementById('set-'+k);if(el)shopSettings[k]=el.value;});
+  saveShopSettings();applyShopSettings();showToast('✅ Đã lưu tất cả cài đặt!','success');
+}
+function adminLogout(){isAdmin=false;saveState();switchPage('home');showToast('Đã đăng xuất Admin','info');}
+function applyShopSettings(){
+  const s=shopSettings;
+  document.title=s.shopName+' - Điện Thoại Ảo Giá Rẻ';
+  document.querySelectorAll('.header-logo,.footer-logo').forEach(el=>{const parts=s.shopName.split(' ');el.innerHTML=(el.classList.contains('header-logo')?'<i class="fa-solid fa-cloud"></i> ':'')+parts[0]+'<span>'+(parts.slice(1).join(' ')||'')+'</span>';});
+  const desc=document.querySelector('.announce-card p:first-child');if(desc)desc.innerHTML='<strong>'+s.shopName+'</strong> — '+s.shopDesc;
+  const bankCard=document.querySelector('.bank-card-number');if(bankCard)bankCard.textContent=s.bankNumber;
+  const bankName=document.querySelector('.bank-name');if(bankName)bankName.textContent=s.bankName;
+  const bankHolder=document.querySelector('.bank-card-holder');if(bankHolder)bankHolder.textContent=s.bankHolder;
+  const contacts=document.querySelectorAll('.footer-contact li');if(contacts[0])contacts[0].innerHTML='<i class="fa-solid fa-envelope"></i> '+s.email;if(contacts[1])contacts[1].innerHTML='<i class="fa-solid fa-phone"></i> '+s.phone;if(contacts[2])contacts[2].innerHTML='<i class="fa-brands fa-discord"></i> '+s.discord;
+  const sidebar=document.querySelectorAll('.sidebar-card:last-child div p');if(sidebar[0])sidebar[0].innerHTML='<i class="fa-brands fa-discord" style="color:#5865F2;"></i> '+s.discord;if(sidebar[1])sidebar[1].innerHTML='<i class="fa-brands fa-telegram" style="color:#26A5E4;"></i> '+s.telegram;if(sidebar[2])sidebar[2].innerHTML='<i class="fa-solid fa-phone" style="color:var(--green);"></i> Zalo: '+s.zalo;
 }
 
 // ===== PATCH confirmBuy to save order =====
