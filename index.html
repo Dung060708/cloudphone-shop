@@ -6,19 +6,17 @@
   <title>CloudPhone Shop - Điện Thoại Ảo Giá Rẻ</title>
   <meta name="description" content="CloudPhone Shop - Cung cấp điện thoại ảo Android, iOS, Windows chất lượng cao, giá rẻ nhất thị trường.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<!-- Floating Particles -->
+<!-- Particles -->
 <div id="particles-container"></div>
 
 <!-- Back to Top -->
-<a id="back-top" href="#" aria-label="Back to top">
-  <i class="fa-solid fa-chevron-up"></i>
-</a>
+<a id="back-top" href="#" aria-label="Back to top"><i class="fa-solid fa-chevron-up"></i></a>
 
 <!-- Toast -->
 <div id="toast" class="toast"></div>
@@ -36,7 +34,7 @@
 </div>
 
 <!-- Main Header -->
-<header class="header">
+<header class="header" id="main-header">
   <div class="container">
     <div class="header-content">
       <a class="header-logo" href="#">
@@ -50,11 +48,10 @@
       <div class="header-widgets">
         <a class="header-widget" href="#" title="Giỏ hàng" onclick="toggleCart();return false">
           <i class="fa-solid fa-cart-shopping"></i>
-          <sup id="cart-count">0</sup>
+          <sup id="cart-count" style="display:none;">0</sup>
         </a>
-        <a class="header-widget" href="#" title="Đơn hàng"><i class="fa-solid fa-receipt"></i></a>
+        <a class="header-widget" href="#" title="Đơn hàng" onclick="switchPage('orders');return false"><i class="fa-solid fa-receipt"></i></a>
         <a class="header-widget" href="#" title="Nạp tiền" onclick="openDepositModal();return false"><i class="fa-solid fa-building-columns"></i></a>
-        <!-- Auth area: changes based on login state -->
         <div id="auth-area">
           <a class="btn-login" href="#" onclick="openAuthModal('login');return false"><i class="fa-solid fa-right-to-bracket"></i> Đăng nhập</a>
         </div>
@@ -67,7 +64,7 @@
 <nav class="navbar-part">
   <div class="container">
     <ul class="navbar-list">
-      <li class="navbar-item"><a class="navbar-link active" href="#" onclick="switchPage('home',this);return false">Trang chủ</a></li>
+      <li class="navbar-item"><a class="navbar-link active" href="#" data-page="home" onclick="switchPage('home');return false">Trang chủ</a></li>
       <li class="navbar-item">
         <a class="navbar-link" href="#">Sản phẩm <i class="fa-solid fa-chevron-down" style="font-size:10px;"></i></a>
         <div class="dropdown-menu-custom">
@@ -85,40 +82,51 @@
           <a href="#" onclick="openDepositModal();return false"><i class="fa-solid fa-credit-card"></i> Thẻ cào</a>
         </div>
       </li>
-      <li class="navbar-item"><a class="navbar-link" href="#">API Docs</a></li>
+      <li class="navbar-item"><a class="navbar-link" href="#" data-page="orders" onclick="switchPage('orders');return false">Đơn hàng</a></li>
+      <li class="navbar-item"><a class="navbar-link" href="#" data-page="admin" onclick="switchPage('admin');return false"><i class="fa-solid fa-gear"></i> Admin</a></li>
     </ul>
   </div>
 </nav>
 
+<!-- ========== HERO BANNER ========== -->
+<section id="hero-banner" class="hero-banner">
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-badge"><i class="fa-solid fa-rocket"></i> Nền tảng #1 Việt Nam</div>
+      <h1 class="hero-title">Điện Thoại Ảo <span class="gradient-text">Cloud</span> Chất Lượng Cao</h1>
+      <p class="hero-desc">Android, iOS, Windows — tất cả trên cloud. Online 24/7, Root/Jailbreak, API quản lý. Giá chỉ từ <strong>30.000đ</strong></p>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="hero-stat-num" data-count="4854">0</div><div class="hero-stat-label">Đã bán</div></div>
+        <div class="hero-stat"><div class="hero-stat-num" data-count="2341">0</div><div class="hero-stat-label">Thành viên</div></div>
+        <div class="hero-stat"><div class="hero-stat-num" data-count="99">0</div><div class="hero-stat-label">% Uptime</div></div>
+      </div>
+      <div class="hero-actions">
+        <a class="btn-hero-primary" href="#products-section" onclick="scrollToProducts();return false"><i class="fa-solid fa-bag-shopping"></i> Mua ngay</a>
+        <a class="btn-hero-secondary" href="#" onclick="openAuthModal('register');return false"><i class="fa-solid fa-user-plus"></i> Đăng ký miễn phí</a>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ========== PAGE: HOME ========== -->
-<section id="page-home" class="page-section active" style="padding:32px 0;position:relative;z-index:2;">
+<section id="page-home" class="page-section active">
   <div class="container">
     <!-- Announcement -->
     <div class="announce-card">
       <p><strong>CloudPhone Shop</strong> — Cung cấp điện thoại ảo <strong>Android, iOS, Windows</strong> chất lượng cao.</p>
       <p>✅ Online 24/7 | ✅ Auto backup | ✅ Root/Jailbreak | ✅ API quản lý | ✅ Bảo hành 7 ngày</p>
-      <p class="text-red" style="color:var(--red);margin-top:8px;"><strong>⚡ Hỗ trợ: Discord | Zalo | Telegram — Thanh toán: Ngân hàng, MoMo, Crypto</strong></p>
+      <p style="color:var(--red);margin-top:8px;"><strong>⚡ Hỗ trợ: Discord | Zalo | Telegram — Thanh toán: Ngân hàng, MoMo, Crypto</strong></p>
     </div>
 
     <div class="main-layout">
       <div class="main-content">
         <!-- Category Buttons -->
-        <div class="category-btns">
-          <a class="btn-category active" data-cat="all" onclick="filterCategory('all',this)">
-            <i class="fa-solid fa-cart-shopping"></i> Tất cả
-          </a>
-          <a class="btn-category" data-cat="android" onclick="filterCategory('android',this)">
-            <i class="fa-brands fa-android" style="color:#3ddc84;"></i> Android
-          </a>
-          <a class="btn-category" data-cat="ios" onclick="filterCategory('ios',this)">
-            <i class="fa-brands fa-apple"></i> iOS
-          </a>
-          <a class="btn-category" data-cat="windows" onclick="filterCategory('windows',this)">
-            <i class="fa-brands fa-windows" style="color:#00a4ef;"></i> Windows
-          </a>
-          <a class="btn-category" data-cat="package" onclick="filterCategory('package',this)">
-            <i class="fa-solid fa-cubes" style="color:var(--yellow);"></i> Gói combo
-          </a>
+        <div class="category-btns" id="products-section">
+          <a class="btn-category active" data-cat="all" onclick="filterCategory('all',this)"><i class="fa-solid fa-cart-shopping"></i> Tất cả</a>
+          <a class="btn-category" data-cat="android" onclick="filterCategory('android',this)"><i class="fa-brands fa-android" style="color:#3ddc84;"></i> Android</a>
+          <a class="btn-category" data-cat="ios" onclick="filterCategory('ios',this)"><i class="fa-brands fa-apple"></i> iOS</a>
+          <a class="btn-category" data-cat="windows" onclick="filterCategory('windows',this)"><i class="fa-brands fa-windows" style="color:#00a4ef;"></i> Windows</a>
+          <a class="btn-category" data-cat="package" onclick="filterCategory('package',this)"><i class="fa-solid fa-cubes" style="color:var(--yellow);"></i> Gói combo</a>
         </div>
 
         <!-- Products Grid -->
@@ -127,17 +135,11 @@
         <!-- Recent Orders & Deposits -->
         <div class="recent-section">
           <div>
-            <div class="section-heading">
-              <i class="fa-solid fa-cart-shopping"></i>
-              <h3>ĐƠN HÀNG GẦN ĐÂY</h3>
-            </div>
+            <div class="section-heading"><i class="fa-solid fa-cart-shopping"></i><h3>ĐƠN HÀNG GẦN ĐÂY</h3></div>
             <div class="scroll-list" id="recent-orders"></div>
           </div>
           <div>
-            <div class="section-heading">
-              <i class="fa-solid fa-building-columns"></i>
-              <h3>NẠP TIỀN GẦN ĐÂY</h3>
-            </div>
+            <div class="section-heading"><i class="fa-solid fa-building-columns"></i><h3>NẠP TIỀN GẦN ĐÂY</h3></div>
             <div class="scroll-list" id="recent-deposits"></div>
           </div>
         </div>
@@ -183,7 +185,42 @@
   </div>
 </section>
 
-<!-- ========== MODAL: AUTH (Login/Register) ========== -->
+<!-- ========== PAGE: ORDERS ========== -->
+<section id="page-orders" class="page-section">
+  <div class="container">
+    <div class="page-header-bar">
+      <h2><i class="fa-solid fa-receipt"></i> Lịch sử đơn hàng</h2>
+      <p>Quản lý tất cả đơn hàng của bạn</p>
+    </div>
+    <div id="orders-content">
+      <div class="empty-state"><i class="fa-solid fa-box-open"></i><p>Chưa có đơn hàng nào</p><small>Vui lòng đăng nhập để xem đơn hàng</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== PAGE: ADMIN ========== -->
+<section id="page-admin" class="page-section">
+  <div class="container">
+    <div class="page-header-bar">
+      <h2><i class="fa-solid fa-gear"></i> Trang quản trị Admin</h2>
+      <p>Quản lý sản phẩm, đơn hàng, người dùng</p>
+    </div>
+    <div id="admin-content">
+      <!-- Admin Stats -->
+      <div class="admin-stats" id="admin-stats"></div>
+      <!-- Admin Tabs -->
+      <div class="admin-tabs">
+        <button class="admin-tab active" onclick="switchAdminTab('products',this)"><i class="fa-solid fa-box"></i> Sản phẩm</button>
+        <button class="admin-tab" onclick="switchAdminTab('orders',this)"><i class="fa-solid fa-receipt"></i> Đơn hàng</button>
+        <button class="admin-tab" onclick="switchAdminTab('users',this)"><i class="fa-solid fa-users"></i> Người dùng</button>
+        <button class="admin-tab" onclick="switchAdminTab('settings',this)"><i class="fa-solid fa-cog"></i> Cài đặt</button>
+      </div>
+      <div id="admin-tab-content"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== MODAL: AUTH ========== -->
 <div class="modal-overlay" id="auth-modal">
   <div class="modal-box auth-modal-box">
     <div class="modal-header">
@@ -194,54 +231,22 @@
       <button class="modal-close" onclick="closeAuthModal()"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="modal-body">
-      <!-- Login Form -->
       <form id="login-form" class="auth-form" onsubmit="handleLogin(event)">
-        <div class="field">
-          <label><i class="fa-solid fa-envelope"></i> Email hoặc tên đăng nhập</label>
-          <input type="text" id="login-email" placeholder="your@email.com" required>
-        </div>
-        <div class="field">
-          <label><i class="fa-solid fa-lock"></i> Mật khẩu</label>
-          <div class="password-field">
-            <input type="password" id="login-password" placeholder="••••••••" required>
-            <button type="button" class="toggle-pw" onclick="togglePassword('login-password',this)"><i class="fa-solid fa-eye"></i></button>
-          </div>
-        </div>
+        <div class="field"><label><i class="fa-solid fa-envelope"></i> Email hoặc tên đăng nhập</label><input type="text" id="login-email" placeholder="your@email.com" required></div>
+        <div class="field"><label><i class="fa-solid fa-lock"></i> Mật khẩu</label><div class="password-field"><input type="password" id="login-password" placeholder="••••••••" required><button type="button" class="toggle-pw" onclick="togglePassword('login-password',this)"><i class="fa-solid fa-eye"></i></button></div></div>
         <div class="field" style="display:flex;justify-content:space-between;align-items:center;">
-          <label class="checkbox-label"><input type="checkbox" checked> Ghi nhớ đăng nhập</label>
+          <label class="checkbox-label"><input type="checkbox" checked> Ghi nhớ</label>
           <a href="#" style="color:var(--primary);font-size:13px;text-decoration:none;">Quên mật khẩu?</a>
         </div>
         <button type="submit" class="btn-confirm"><i class="fa-solid fa-right-to-bracket"></i> Đăng nhập</button>
         <div class="auth-divider"><span>hoặc</span></div>
-        <button type="button" class="btn-social discord" onclick="showToast('Đăng nhập bằng Discord sắp ra mắt!','info')">
-          <i class="fa-brands fa-discord"></i> Đăng nhập bằng Discord
-        </button>
+        <button type="button" class="btn-social discord" onclick="showToast('Đăng nhập bằng Discord sắp ra mắt!','info')"><i class="fa-brands fa-discord"></i> Đăng nhập bằng Discord</button>
       </form>
-
-      <!-- Register Form -->
       <form id="register-form" class="auth-form" style="display:none;" onsubmit="handleRegister(event)">
-        <div class="field">
-          <label><i class="fa-solid fa-user"></i> Tên đăng nhập</label>
-          <input type="text" id="reg-username" placeholder="username" required>
-        </div>
-        <div class="field">
-          <label><i class="fa-solid fa-envelope"></i> Email</label>
-          <input type="email" id="reg-email" placeholder="your@email.com" required>
-        </div>
-        <div class="field">
-          <label><i class="fa-solid fa-lock"></i> Mật khẩu</label>
-          <div class="password-field">
-            <input type="password" id="reg-password" placeholder="Tối thiểu 6 ký tự" required minlength="6">
-            <button type="button" class="toggle-pw" onclick="togglePassword('reg-password',this)"><i class="fa-solid fa-eye"></i></button>
-          </div>
-        </div>
-        <div class="field">
-          <label><i class="fa-solid fa-lock"></i> Xác nhận mật khẩu</label>
-          <div class="password-field">
-            <input type="password" id="reg-password-confirm" placeholder="Nhập lại mật khẩu" required>
-            <button type="button" class="toggle-pw" onclick="togglePassword('reg-password-confirm',this)"><i class="fa-solid fa-eye"></i></button>
-          </div>
-        </div>
+        <div class="field"><label><i class="fa-solid fa-user"></i> Tên đăng nhập</label><input type="text" id="reg-username" placeholder="username" required></div>
+        <div class="field"><label><i class="fa-solid fa-envelope"></i> Email</label><input type="email" id="reg-email" placeholder="your@email.com" required></div>
+        <div class="field"><label><i class="fa-solid fa-lock"></i> Mật khẩu</label><div class="password-field"><input type="password" id="reg-password" placeholder="Tối thiểu 6 ký tự" required minlength="6"><button type="button" class="toggle-pw" onclick="togglePassword('reg-password',this)"><i class="fa-solid fa-eye"></i></button></div></div>
+        <div class="field"><label><i class="fa-solid fa-lock"></i> Xác nhận mật khẩu</label><div class="password-field"><input type="password" id="reg-password-confirm" placeholder="Nhập lại mật khẩu" required><button type="button" class="toggle-pw" onclick="togglePassword('reg-password-confirm',this)"><i class="fa-solid fa-eye"></i></button></div></div>
         <button type="submit" class="btn-confirm" style="background:var(--green);"><i class="fa-solid fa-user-plus"></i> Đăng ký tài khoản</button>
       </form>
     </div>
@@ -251,10 +256,7 @@
 <!-- ========== MODAL: PRODUCT DETAIL ========== -->
 <div class="modal-overlay" id="detail-modal">
   <div class="modal-box detail-modal-box">
-    <div class="modal-header">
-      <h3 id="detail-title">Product</h3>
-      <button class="modal-close" onclick="closeDetailModal()"><i class="fa-solid fa-xmark"></i></button>
-    </div>
+    <div class="modal-header"><h3 id="detail-title">Product</h3><button class="modal-close" onclick="closeDetailModal()"><i class="fa-solid fa-xmark"></i></button></div>
     <div class="modal-body" id="detail-body"></div>
   </div>
 </div>
@@ -262,36 +264,18 @@
 <!-- ========== MODAL: BUY ========== -->
 <div class="modal-overlay" id="buy-modal">
   <div class="modal-box">
-    <div class="modal-header">
-      <h3 id="modal-product-name">Product</h3>
-      <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
-    </div>
+    <div class="modal-header"><h3 id="modal-product-name">Product</h3><button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button></div>
     <div class="modal-body">
       <div style="display:flex;justify-content:space-between;margin-bottom:16px;font-size:14px;">
         <span style="color:var(--text-muted);">Giá: <strong id="modal-product-price" style="color:var(--primary);"></strong></span>
         <span style="color:var(--text-muted);">Kho: <strong id="modal-product-stock" style="color:var(--green);"></strong></span>
       </div>
       <input type="hidden" id="modal-product-id">
-      <div class="field">
-        <label>Số lượng</label>
-        <div class="qty-control">
-          <button class="qty-btn" type="button" onclick="updateQty(-1)">−</button>
-          <input class="qty-input" type="number" id="modal-qty" value="1" min="1" onchange="onQtyChange()">
-          <button class="qty-btn" type="button" onclick="updateQty(1)">+</button>
-        </div>
-      </div>
-      <div class="field">
-        <label>Email nhận thông tin</label>
-        <input type="email" id="buy-email" placeholder="your@email.com">
-      </div>
-      <div class="field">
-        <label>Mã giảm giá (tùy chọn)</label>
-        <input type="text" id="buy-coupon" placeholder="Nhập mã nếu có...">
-      </div>
+      <div class="field"><label>Số lượng</label><div class="qty-control"><button class="qty-btn" type="button" onclick="updateQty(-1)">−</button><input class="qty-input" type="number" id="modal-qty" value="1" min="1" onchange="onQtyChange()"><button class="qty-btn" type="button" onclick="updateQty(1)">+</button></div></div>
+      <div class="field"><label>Email nhận thông tin</label><input type="email" id="buy-email" placeholder="your@email.com"></div>
+      <div class="field"><label>Mã giảm giá (tùy chọn)</label><input type="text" id="buy-coupon" placeholder="Nhập mã nếu có..."></div>
       <div class="modal-total">Tổng: <span id="modal-total">0đ</span></div>
-      <button class="btn-confirm" onclick="confirmBuy()">
-        <i class="fa-solid fa-bag-shopping"></i> Xác nhận mua hàng
-      </button>
+      <button class="btn-confirm" onclick="confirmBuy()"><i class="fa-solid fa-bag-shopping"></i> Xác nhận mua hàng</button>
     </div>
   </div>
 </div>
@@ -299,29 +283,17 @@
 <!-- ========== MODAL: DEPOSIT ========== -->
 <div class="modal-overlay" id="deposit-modal">
   <div class="modal-box deposit-modal-box">
-    <div class="modal-header">
-      <h3><i class="fa-solid fa-building-columns" style="color:var(--primary);"></i> Nạp tiền</h3>
-      <button class="modal-close" onclick="closeDepositModal()"><i class="fa-solid fa-xmark"></i></button>
-    </div>
+    <div class="modal-header"><h3><i class="fa-solid fa-building-columns" style="color:var(--primary);"></i> Nạp tiền</h3><button class="modal-close" onclick="closeDepositModal()"><i class="fa-solid fa-xmark"></i></button></div>
     <div class="modal-body">
       <div class="deposit-methods">
-        <button class="deposit-method active" onclick="selectDepositMethod('bank',this)">
-          <i class="fa-solid fa-building-columns"></i> Ngân hàng
-        </button>
-        <button class="deposit-method" onclick="selectDepositMethod('momo',this)">
-          <i class="fa-solid fa-wallet"></i> MoMo
-        </button>
-        <button class="deposit-method" onclick="selectDepositMethod('card',this)">
-          <i class="fa-solid fa-credit-card"></i> Thẻ cào
-        </button>
+        <button class="deposit-method active" onclick="selectDepositMethod('bank',this)"><i class="fa-solid fa-building-columns"></i> Ngân hàng</button>
+        <button class="deposit-method" onclick="selectDepositMethod('momo',this)"><i class="fa-solid fa-wallet"></i> MoMo</button>
+        <button class="deposit-method" onclick="selectDepositMethod('card',this)"><i class="fa-solid fa-credit-card"></i> Thẻ cào</button>
       </div>
       <div id="deposit-content">
         <div class="deposit-bank-info">
           <div class="bank-card">
-            <div class="bank-card-header">
-              <span class="bank-name">VIETCOMBANK</span>
-              <span class="bank-badge">Tự động</span>
-            </div>
+            <div class="bank-card-header"><span class="bank-name">VIETCOMBANK</span><span class="bank-badge">Tự động</span></div>
             <div class="bank-card-number">1234 5678 9012</div>
             <div class="bank-card-holder">CLOUDPHONE SHOP</div>
             <p class="bank-note">Nội dung CK: <strong style="color:var(--yellow);">NAP [username]</strong></p>
@@ -336,14 +308,9 @@
               <button class="amount-btn" onclick="selectAmount(1000000,this)">1.000.000đ</button>
               <button class="amount-btn" onclick="selectAmount(2000000,this)">2.000.000đ</button>
             </div>
-            <div class="field" style="margin-top:16px;">
-              <label>Hoặc nhập số tiền tùy chỉnh:</label>
-              <input type="number" id="custom-amount" placeholder="Nhập số tiền (VNĐ)" min="10000">
-            </div>
+            <div class="field" style="margin-top:16px;"><label>Hoặc nhập số tiền tùy chỉnh:</label><input type="number" id="custom-amount" placeholder="Nhập số tiền (VNĐ)" min="10000"></div>
           </div>
-          <button class="btn-confirm" onclick="confirmDeposit()" style="margin-top:16px;">
-            <i class="fa-solid fa-paper-plane"></i> Xác nhận đã chuyển khoản
-          </button>
+          <button class="btn-confirm" onclick="confirmDeposit()" style="margin-top:16px;"><i class="fa-solid fa-paper-plane"></i> Xác nhận đã chuyển khoản</button>
         </div>
       </div>
     </div>
@@ -353,16 +320,8 @@
 <!-- ========== CART SIDEBAR ========== -->
 <div class="cart-overlay" id="cart-overlay" onclick="toggleCart()"></div>
 <aside class="cart-sidebar" id="cart-sidebar">
-  <div class="cart-header">
-    <h3><i class="fa-solid fa-cart-shopping"></i> Giỏ hàng</h3>
-    <button class="modal-close" onclick="toggleCart()"><i class="fa-solid fa-xmark"></i></button>
-  </div>
-  <div class="cart-items" id="cart-items">
-    <div class="cart-empty">
-      <i class="fa-solid fa-cart-arrow-down"></i>
-      <p>Giỏ hàng trống</p>
-    </div>
-  </div>
+  <div class="cart-header"><h3><i class="fa-solid fa-cart-shopping"></i> Giỏ hàng</h3><button class="modal-close" onclick="toggleCart()"><i class="fa-solid fa-xmark"></i></button></div>
+  <div class="cart-items" id="cart-items"><div class="cart-empty"><i class="fa-solid fa-cart-arrow-down"></i><p>Giỏ hàng trống</p></div></div>
   <div class="cart-footer" id="cart-footer" style="display:none;">
     <div class="cart-total">Tổng: <span id="cart-total">0đ</span></div>
     <button class="btn-confirm" onclick="checkoutCart()"><i class="fa-solid fa-credit-card"></i> Thanh toán</button>
@@ -375,9 +334,7 @@
     <div class="footer-grid">
       <div>
         <a class="footer-logo" href="#">Cloud<span>Phone</span></a>
-        <p style="color:var(--text-muted);font-size:14px;margin-top:12px;line-height:1.7;">
-          Nền tảng cung cấp điện thoại ảo hàng đầu Việt Nam. Android, iOS, Windows — tất cả trên cloud.
-        </p>
+        <p style="color:var(--text-muted);font-size:14px;margin-top:12px;line-height:1.7;">Nền tảng cung cấp điện thoại ảo hàng đầu Việt Nam. Android, iOS, Windows — tất cả trên cloud.</p>
       </div>
       <div>
         <h4 class="footer-title">Liên hệ</h4>
@@ -407,11 +364,11 @@
 <!-- Mobile Menu -->
 <div class="mobile-menu">
   <div class="mobile-menu-inner">
-    <a href="#"><i class="fas fa-home"></i><span>Trang chủ</span></a>
+    <a href="#" onclick="switchPage('home');return false"><i class="fas fa-home"></i><span>Trang chủ</span></a>
     <button onclick="document.querySelector('.header-search').style.display='block'"><i class="fas fa-search"></i><span>Tìm kiếm</span></button>
     <a href="#" onclick="openDepositModal();return false"><i class="fa-solid fa-building-columns"></i><span>Nạp tiền</span></a>
     <a href="#" onclick="toggleCart();return false"><i class="fa-solid fa-cart-shopping"></i><span>Giỏ hàng</span></a>
-    <a href="#" onclick="openAuthModal('login');return false"><i class="fa-solid fa-user"></i><span>Tài khoản</span></a>
+    <a href="#" onclick="switchPage('orders');return false"><i class="fa-solid fa-receipt"></i><span>Đơn hàng</span></a>
   </div>
 </div>
 
